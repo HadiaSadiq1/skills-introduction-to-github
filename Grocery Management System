@@ -1,0 +1,345 @@
+
+#include <iostream>
+#include <fstream>
+#include <string>
+#include<iomanip>
+using namespace std;
+
+// Forward declarations
+
+void searchitem(string grocery[10][8]);
+void insertitem(string grocery[10][8]);
+void displaycart();
+void deleteitem();
+void updateqty();
+
+
+// Arrays to store items in the cart
+string cartProductNames[10];
+string cartPrices[10];
+string cartExpDates[10];
+string cartProductid[10];
+string cartProductqty[10];
+string qtynew[10];
+
+int cartSize = 0;
+
+
+void searchitem(string grocery[10][8])
+{
+    bool found = false;
+    string id;
+    cout << "Enter product ID to search: ";
+    cin >> id;
+
+    for (int i = 0; i < 10; i++)
+    {
+        if (grocery[i][1] == id)
+        {
+            cout << "Product found: " << grocery[i][2] << "\t\t" << grocery[i][5] << "\t\t" << grocery[i][6] << endl;
+            found = true;
+
+
+
+            break;
+        }
+    }
+
+    if (!found)
+        cout << "Item not found." << endl;
+}
+
+void insertitem(string grocery[10][8])
+{
+    int choice;
+    cout << "Do you want to add  items to the cart? (1 for yes, 2 for no): ";
+    cin >> choice;
+    switch (choice)
+    {
+
+
+    case 1:  while (choice == 1)
+    {
+
+        int buyquantity;
+        bool found = false;
+        string id;
+        cout << "Enter product ID to search: ";
+        cin >> id;
+        int myIndex = 0;
+        for (int i = 0; i < 10; i++)
+        {
+            if (grocery[i][1] == id)
+            {
+                cout << "Product found: " << grocery[i][2] << "\t\t" << grocery[i][5] << "\t\t" << grocery[i][6] << endl;
+                found = true;
+                myIndex = i;
+                break;
+            }
+        }
+        cout << "Enter the quantity user wants to buy" << endl;
+        cin >> buyquantity;
+        if (found)
+        {
+            cartProductid[cartSize] = grocery[myIndex][1];
+            cartProductNames[cartSize] = grocery[myIndex][2];
+            cartPrices[cartSize] = grocery[myIndex][6];
+            cartExpDates[cartSize] = grocery[myIndex][5];
+            cartProductqty[cartSize] = to_string(buyquantity);
+            cartSize++;
+        }
+        displaycart();
+        if (!found)
+            cout << "Item not found." << endl;
+        cout << "Do you want to add more items to the cart? (1 for yes, 2 for no): ";
+        cin >> choice;
+    }
+
+
+    case 2:
+        cout << "Returning to the menu." << endl;
+        break;
+    }
+}
+void displaycart()
+{
+
+    cout << "Items in the Cart:" << endl;
+    cout << "-----------------------------" << endl;
+
+    for (int i = 0; i <= cartSize; i++)
+    {
+        cout << cartProductid[i] << "\t\t" << cartPrices[i] << "\t\t" << cartExpDates[i] << "\t\t" << cartProductqty[i] << endl;
+    }
+
+    cout << "-----------------------------" << endl;
+}
+void deleteitem()
+{
+    string id;
+    cout << " enter product id to delete from cart " << endl;
+    cin >> id;
+
+    for (int i = 0; i < cartSize - 1; i++)
+    {
+        if (id == cartProductid[i])
+        {
+            for (int j = i; j < cartSize; j++)
+            {
+                cartProductid[j] = cartProductid[j + 1];
+                cartPrices[j] = cartPrices[j + 1];
+                cartExpDates[j] = cartExpDates[j + 1];
+                cartProductqty[j] = cartProductqty[j + 1];
+            }
+            cartSize--;
+        }
+    }
+    displaycart();
+}
+
+void updateqty()
+{
+    string id, qty;
+    cout << "Enter product ID to update quantity: ";
+    cin >> id;
+
+    int foundIndex = -1; // Variable to store the index if product ID is found
+
+    for (int i = 0; i < cartSize; i++)
+    {
+        if (id == cartProductid[i])
+        {
+            foundIndex = i; // Update the found index
+            break;
+        }
+    }
+
+    if (foundIndex != -1)
+    {
+        cout << "Enter new quantity: ";
+        cin >> qty;
+
+        // Update the quantity
+        qtynew[foundIndex] = qty;
+        cartProductqty[foundIndex] = qtynew[foundIndex];
+
+        // Display updated cart
+        cout << "Items in the Cart:" << endl;
+        cout << "-----------------------------" << endl;
+
+        for (int i = 0; i < cartSize; i++)
+        {
+            cout << cartProductid[i] << "\t\t" << cartPrices[i] << "\t\t" << cartExpDates[i] << "\t\t" << cartProductqty[i] << endl;
+        }
+
+        cout << "-----------------------------" << endl;
+    }
+    else
+    {
+        cout << "Error: Invalid product ID. No matching item found in the cart." << endl;
+    }
+}
+bool isAlphabetic(const string& str) {
+    for (char ch : str) {
+        if (!(ch >= 'A' && ch <= 'Z') && !(ch >= 'a' && ch <= 'z')) {
+            return false;
+        }
+    }
+    return true;
+}
+void Checkout()
+{
+    ofstream receiptFile("receipt.txt");
+    if (!receiptFile.is_open())
+    {
+        cout << "Error: Unable to open receipt file for writing" << endl;
+        return;
+    }
+
+    string Name, Address, Contact;
+    do
+    {
+        cout << "Enter Your Name: ";
+        cin >> Name;
+
+        // Check if Name contains only alphabetic characters
+        if (!isAlphabetic(Name))
+        {
+            cout << "Invalid input! Please enter a valid name with only alphabetic characters." << endl;
+        }
+
+    } while (!isAlphabetic(Name));
+
+    cout << "Enter your Address: ";
+    cin >> Address;
+    cout << "Enter Contact Number: ";
+    cin >> Contact;
+    receiptFile << "================= Pharmacy Receipt =================" << endl;
+    receiptFile << "Name: " << Name << endl;
+    receiptFile << "Address: " << Address << endl;
+    receiptFile << "Contact Number: " << Contact << endl;
+    receiptFile << "================= Cart Details =================" << endl;
+    receiptFile << "ID" << "\t\t" << "Price" << "\t\t" << " EXP Date" << "\t\t" << "Quantity" << endl;
+
+    cout << "================= Pharmacy Receipt =================" << endl;
+    cout << "Name: " << Name << endl;
+    cout << "Address: " << Address << endl;
+    cout << "Contact Number: " << Contact << endl;
+    cout << "================= Cart Details =================" << endl;
+    cout << "ID" << "\t\t" << "Price" << "\t\t" << " EXP Date" << "\t\t" << "Quantity" << endl;
+    for (int i = 0; i <= cartSize; i++)
+    {
+        receiptFile << cartProductid[i] << "\t\t" << cartPrices[i] << "\t\t" << cartExpDates[i] << "\t\t" << cartProductqty[i] << endl;
+        cout << cartProductid[i] << "\t\t" << cartPrices[i] << "\t\t" << cartExpDates[i] << "\t\t" << cartProductqty[i] << endl;
+    }
+    double TotalAmount = 0.0, DeliveryAmount = 0.0, TaxAmount = 0.0, DeliveryCharges = 50.0, DeliveryThreshold = 10000.0, TAXRATE = 0.1;
+
+    for (int i = 0; i < cartSize; i++)
+    {
+        TotalAmount = TotalAmount + (stoi(cartPrices[i]) * stoi(cartProductqty[i]));
+    }
+    if (TotalAmount >= DeliveryThreshold)
+    {
+        DeliveryCharges = 0;
+        cout << "CONGRATULATIONS! YOUR DELIVERY IS FREE" << endl;
+        receiptFile << "CONGRATULATIONS! YOUR DELIVERY IS FREE" << endl;
+    }
+    TaxAmount = TAXRATE * TotalAmount;
+    double FinalAmount = TotalAmount + TaxAmount + DeliveryAmount;
+
+
+    cout << "Total Amount: $" << fixed << setprecision(2) << TotalAmount << endl;
+    cout << "Tax Amount: $" << fixed << setprecision(2) << TaxAmount << endl;
+    cout << "Delivery Charges: $" << fixed << setprecision(2) << DeliveryAmount << endl;
+    cout << "Final Amount: $" << fixed << setprecision(2) << FinalAmount << endl;
+
+    receiptFile << "Total Amount: $" << fixed << setprecision(2) << TotalAmount << endl;
+    receiptFile << "Tax Amount: $" << fixed << setprecision(2) << TaxAmount << endl;
+    receiptFile << "Delivery Charges: $" << fixed << setprecision(2) << DeliveryAmount << endl;
+    receiptFile << "Final Amount: $" << fixed << setprecision(2) << FinalAmount << endl;
+
+    receiptFile.close();
+}
+
+
+
+
+int main()
+{
+    string grocery[10][8];
+    int choice;
+
+    ifstream inputfile;
+    inputfile.open("groceryout.txt");
+
+    if (!inputfile)
+    {
+        cout << "Error opening file" << endl;
+        return 1;
+    }
+    else
+    {
+        for (int i = 0; i < 10; i++)
+        {
+            for (int j = 0; j < 8; j++)
+            {
+                inputfile >> grocery[i][j];
+            }
+        }
+        inputfile.close();
+    }
+
+    for (int i = 0; i < 10; i++)
+    {
+        for (int j = 0; j < 8; j++)
+        {
+            cout << grocery[i][j] << "  ";
+        }
+        cout << endl;
+    }
+    do
+    {
+
+        cout << " *********" << endl;
+        cout << "           MENU           " << endl;
+        cout << " **********" << endl;
+        cout << "1. Search for an item" << endl;
+        cout << "2. Add items to the cart" << endl;
+        cout << "3. To delete an item from cart" << endl;
+        cout << "4. To update quantity of an item" << endl;
+        cout << "5. Do you want to proceed to checkout" << endl;
+        cout << "6. Exit" << endl;
+        cout << "Enter your choice (1-7): ";
+        cin >> choice;
+
+        switch (choice)
+        {
+        case 1:
+            searchitem(grocery);
+            break;
+
+        case 2:
+            insertitem(grocery);
+            break;
+        case 3: deleteitem();
+            break;
+        case 4: updateqty();
+            break;
+        case 5:
+            Checkout();
+            break;
+        case 6:
+            cout << "Exiting the program." << endl;
+            break;
+
+        default:
+            cout << "Invalid choice. Please enter a number between 1 and 6." << endl;
+            break;
+        }
+    } while (choice != 7);
+
+    return 0;
+
+}
+final project 2023 2.cpp
+Displaying final project 2023 2.cpp.
